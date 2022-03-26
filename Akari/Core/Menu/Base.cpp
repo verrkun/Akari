@@ -1,0 +1,932 @@
+
+#include "Base.h"
+#include "../Configuration.h"
+#include "../Helpers.h"
+#include "../../Engine/Input.h"
+#include "../../Engine/Rendering.h"
+#include "../../Engine/Exports/paf/View.h"
+#include "../../Utilities/System.h"
+#include <vsh/stdc.h>
+
+Menu* g_Menu;
+
+Menu::Menu(Function mainSubmenu)
+	: m_MainMenu(mainSubmenu) {}
+
+bool Menu::IsOpened()
+{
+	return m_OpacityBackground > 0.0 || m_StateOpened;
+}
+
+bool Menu::IsMoving()
+{
+	return m_StateMoving;
+}
+
+void Menu::SetMovingState(bool state)
+{
+	m_StateMoving = state;
+}
+
+bool Menu::IsInitialized()
+{
+	return m_StateInitialized;
+}
+
+void Menu::Initialize()
+{
+	m_StateInitialized = true;
+}
+
+bool Menu::IsOpenPressed()
+{
+	if (g_Input.IsButtonBinds(CInput::BUTTON_L1, CInput::BUTTON_L3))
+	{
+		PlaySound("snd_system_ok");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsEnterPressed()
+{
+	if (g_Input.IsButtonDown(CInput::BUTTON_CROSS, 400))
+	{
+		PlaySound("snd_system_ok");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsBackPressed()
+{
+	if (g_Input.IsButtonDown(CInput::BUTTON_CIRCLE, 400))
+	{
+		PlaySound("snd_cancel");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsUpPressed()
+{
+	if (g_Input.IsButtonDown(CInput::BUTTON_PAD_UP, 250))
+	{
+		PlaySound("snd_cursor");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsDownPressed()
+{
+	if (g_Input.IsButtonDown(CInput::BUTTON_PAD_DOWN, 250))
+	{
+		PlaySound("snd_cursor");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsLeftPressed()
+{
+	if (g_Input.IsButtonDown(CInput::BUTTON_PAD_LEFT, m_SliderDelay))
+	{
+		//PlaySound("snd_cursor");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsRightPressed()
+{
+	if (g_Input.IsButtonDown(CInput::BUTTON_PAD_RIGHT, m_SliderDelay))
+	{
+		//PlaySound("snd_cursor");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsLeftOrRightPressed()
+{
+	if (g_Input.IsButtonDown(CInput::BUTTON_PAD_LEFT, m_SliderDelay) || g_Input.IsButtonDown(CInput::BUTTON_PAD_RIGHT, m_SliderDelay))
+	{
+		//PlaySound("snd_cursor");
+		return true;
+	}
+
+	return false;
+}
+
+bool Menu::IsHovered()
+{
+	return IsOpened() && (m_CurrentOption == m_PrintingOption);
+}
+
+bool Menu::IsPressed()
+{
+	if (IsHovered())
+		return IsEnterPressed();
+
+	return false;
+}
+
+void Menu::OnOpen()
+{
+	m_StateOpened = true;
+	m_CurrentMenu = (m_SavedMenu == nullptr) ? m_MainMenu : m_SavedMenu;
+	m_SubmenuLevel = (m_SavedMenu == nullptr) ? 0 : m_SavedSubmenuLevel;
+	m_CurrentOption = (m_SavedMenu == nullptr) ? 1 : m_SavedCurrentOption;
+	m_CurrentIndex = (m_SavedMenu == nullptr) ? 1 : m_SavedCurrentIndex;
+
+	// opening animation
+	g_ChangeOvertime.Add(&m_OpacityBackground, g_Config->menu.colorBackground.a, 200);
+	g_ChangeOvertime.Add(&m_OpacityGlobal, 1, 200);
+	g_ChangeOvertime.Add(&m_OpacityHighlightBar, 0.4, 200, 200);
+	g_ChangeOvertime.Add(&m_OpacityText, 1, 200, 200);
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+}
+
+void Menu::OnClose()
+{
+	m_StateOpened = false;
+	m_StateMoving = false;
+	m_SavedMenu = m_CurrentMenu;
+	m_SavedSubmenuLevel = m_SubmenuLevel;
+	m_SavedCurrentOption = m_CurrentOption;
+	m_SavedCurrentIndex = m_CurrentIndex;
+
+	// closing animation
+	g_ChangeOvertime.Add(&m_SizeBackground, 0, 200, 200, true);
+	g_ChangeOvertime.Add(&m_OpacityBackground, 0, 200, 200);
+	g_ChangeOvertime.Add(&m_OpacityGlobal, 0, 200, 200);
+	g_ChangeOvertime.Add(&m_OpacityHighlightBar, 0, 200);
+	g_ChangeOvertime.Add(&m_OpacityText, 0, 200);
+}
+
+void Menu::OnCancel()
+{
+	m_SubmenuLevel--;
+	m_CurrentMenu = m_LastSubmenu[m_SubmenuLevel];
+	m_CurrentOption = m_LastOption[m_SubmenuLevel];
+	m_CurrentIndex = m_LastIndex[m_SubmenuLevel];
+
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+}
+
+void Menu::OnScrollUp()
+{
+	m_CurrentOption--;
+
+	/*if (m_CurrentOption < m_CurrentIndex)
+		m_CurrentIndex = m_CurrentOption;*/
+
+	// Better infinite scrolling
+	if (m_CurrentOption == m_CurrentIndex + 1 && m_CurrentIndex > 1)
+		m_CurrentIndex--;
+
+	if (m_CurrentOption < 1)
+	{
+		m_CurrentOption = m_TotalOptions;
+		m_CurrentIndex = (m_TotalOptions > maxOptionsPerPage) ? m_CurrentOption - maxOptionsPerPage + 1 : 1;
+	}
+
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+}
+
+void Menu::OnScrollDown()
+{
+	m_CurrentOption++;
+
+	/*if (m_CurrentOption >= (m_CurrentIndex + maxOptionsPerPage))
+		m_CurrentIndex = m_CurrentOption - maxOptionsPerPage + 1;*/
+
+	// Better infinite scrolling
+	if (m_CurrentOption == m_CurrentIndex + maxOptionsPerPage - 2 && m_CurrentIndex < m_TotalOptions - maxOptionsPerPage + 1)
+		m_CurrentIndex++;
+
+	if (m_CurrentOption > m_TotalOptions)
+	{
+		m_CurrentOption = 1;
+		m_CurrentIndex = 1;
+	}
+
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+}
+
+void Menu::EnterSubmenu(Function submenu)
+{
+	if (submenu == nullptr)
+		return;
+
+	m_LastSubmenu[m_SubmenuLevel] = m_CurrentMenu;
+	m_LastOption[m_SubmenuLevel] = m_CurrentOption;
+	m_LastIndex[m_SubmenuLevel] = m_CurrentIndex;
+	m_CurrentMenu = submenu;
+	m_CurrentOption = 1;
+	m_CurrentIndex = 1;
+	m_SubmenuLevel++;
+
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 200, 0, true);
+}
+
+void Menu::ChangeSubmenu(Function submenu)
+{
+	if (submenu != nullptr)
+		m_SubmenuDelay = submenu;
+}
+
+void Menu::PlaySound(const char* sound)
+{
+	if (g_Config->menu.useSound)
+	{
+		if (!g_Helpers.system_plugin)
+			return;
+
+		g_Helpers.system_plugin->PlaySound(sound);
+	}
+}
+
+void Menu::UpdateButtons()
+{
+	if (m_StateMoving)
+	{
+		if (IsBackPressed() || IsEnterPressed())
+			m_StateMoving = false;
+	}
+	else
+	{
+		if (!m_StateOpened && (m_OpacityBackground == 0.0)) // fully closed
+		{
+			if (IsOpenPressed())
+				OnOpen();
+		}
+		else if (m_StateOpened && (m_OpacityText == 1.0)) // fully opened
+		{
+			if (IsBackPressed())
+			{
+				if (m_CurrentMenu == m_MainMenu)
+					OnClose();
+				else
+					OnCancel();
+			}
+			else if (IsUpPressed())
+				OnScrollUp();
+			else if (IsDownPressed())
+				OnScrollDown();
+		}
+	}
+}
+
+void Menu::UpdatePosition()
+{
+	if (m_StateMoving)
+	{
+		double stickX = g_Input.GetRightAnalogX();
+		double stickY = -g_Input.GetRightAnalogY();
+
+		if (stickX != 0.0)
+		{
+			float xAdvance = g_Config->menu.position.x + stickX * 5.0;
+			float xSafeLimit = VIEWPORT_WIDTH / 2 - g_Config->menu.sizeWidth / 2 - g_Config->menu.sizeBorder;
+
+			if (xAdvance > -xSafeLimit && xAdvance < xSafeLimit)
+				g_Config->menu.position.x += stickX * 5.0;
+
+			if (g_Config->menu.position.x > xSafeLimit)
+				g_Config->menu.position.x = xSafeLimit;
+
+			if (g_Config->menu.position.x < -xSafeLimit)
+				g_Config->menu.position.x = -xSafeLimit;
+		}
+
+		if (stickY != 0.0)
+		{
+			float yAdvance = g_Config->menu.position.y + stickY * 5.0;
+			float ySafeLimit = VIEWPORT_HEIGHT / 2 - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 4 - g_Config->menu.sizeText;
+
+			if (yAdvance > -ySafeLimit && yAdvance < ySafeLimit)
+				g_Config->menu.position.y += stickY * 5.0;
+
+			if (g_Config->menu.position.y > ySafeLimit)
+				g_Config->menu.position.y = ySafeLimit;
+
+			if (g_Config->menu.position.y < -ySafeLimit)
+				g_Config->menu.position.y = -ySafeLimit;
+		}
+	}
+}
+
+void Menu::UpdateBackgroundSize()
+{
+	if (m_StateOpened)
+	{
+		static bool done = false;
+		static unsigned int lastTime = 0;
+
+
+		int optionsCount = (m_TotalOptions > maxOptionsPerPage) ? maxOptionsPerPage : m_TotalOptions;
+		if (!optionsCount)
+			return;
+
+		float size = g_Config->menu.sizeText * optionsCount + m_SizeBackgroundSpace * 2;
+		unsigned int timeNow = Timers::GetTimeNow();
+
+		if (done && (timeNow - lastTime >= 200))
+			done = false;
+
+		if ((m_SizeBackground != size) && !done)
+		{
+			done = g_ChangeOvertime.Add(&m_SizeBackground, size, 200);
+			lastTime = timeNow;
+		}
+
+	}
+}
+
+void Menu::UpdateHighlightBarPos()
+{
+	if (m_StateOpened)
+	{
+		static bool done = false;
+		static unsigned int lastTime = 0;
+
+		float pos = (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText;
+		unsigned int timeNow = Timers::GetTimeNow();
+
+		if (done && (timeNow - lastTime >= 200))
+			done = false;
+
+		if ((m_HighlightBarPosY != pos) && !done)
+		{
+			done = g_ChangeOvertime.Add(&m_HighlightBarPosY, pos, 200);
+			lastTime = timeNow;
+		}
+	}
+}
+
+void Menu::UpdateUI()
+{
+	DrawControlsHelp();
+
+	if (m_OpacityGlobal > 0.0)
+	{
+		m_TotalOptions = m_PrintingOption;
+		m_PrintingOption = 0;
+
+		UpdatePosition();
+		UpdateBackgroundSize();
+		UpdateHighlightBarPos();
+
+		// Update background opacity
+		if (m_OpacityGlobal == 1.0)
+			m_OpacityBackground = g_Config->menu.colorBackground.a;
+
+		DrawHeader();
+		DrawFooter();
+		DrawBody();
+		DrawHighlightBar();
+
+		// Display current menu
+		if (m_CurrentMenu != nullptr)
+			m_CurrentMenu();
+
+		// Enter selected submenu
+		if (m_SubmenuDelay != nullptr)
+		{
+			EnterSubmenu(m_SubmenuDelay);
+			m_SubmenuDelay = nullptr;
+		}
+	}
+
+	DrawMovingHelp();
+}
+
+void Menu::OnUpdate()
+{
+	if (!m_StateInitialized)
+		Initialize();
+
+	g_ChangeOvertime.Update();
+
+	// Close the menu if the xmb isn't loaded
+	if (!paf::View::Find("xmb_plugin"))
+	{
+		if (m_StateOpened)
+			OnClose();
+		return;
+	}
+
+	UpdateButtons();
+	UpdateUI();
+}
+
+void Menu::DrawBody()
+{
+	// Background
+	g_Render.Rectangle(
+		g_Config->menu.position,
+		vec2(g_Config->menu.sizeWidth, m_SizeBackground),
+		CRender::Centered,
+		CRender::Centered,
+		Color(g_Config->menu.colorBackground.r, g_Config->menu.colorBackground.g, g_Config->menu.colorBackground.b, m_OpacityBackground));
+
+	// Top
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2),
+		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		CRender::Centered,
+		CRender::Bottom,
+		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+
+	// Bottom
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2),
+		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		CRender::Centered,
+		CRender::Top,
+		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+
+	if (g_Config->menu.useDualColor)
+	{
+		// Top
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2),
+			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			CRender::Centered,
+			CRender::Bottom,
+			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			"tex_optionmenu_game");
+
+		// Bottom
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2),
+			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			CRender::Centered,
+			CRender::Top,
+			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			"tex_optionmenu_game");
+	}
+
+	// Left
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2, g_Config->menu.position.y),
+		vec2(g_Config->menu.sizeBorder, m_SizeBackground),
+		CRender::Right,
+		CRender::Centered,
+		g_Config->menu.useDualColor ? Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal)
+		: Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+
+	// Right
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2, g_Config->menu.position.y),
+		vec2(g_Config->menu.sizeBorder, m_SizeBackground),
+		CRender::Left,
+		CRender::Centered,
+		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+}
+
+void Menu::DrawHeader()
+{
+	// Background
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText / 2),
+		vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+		CRender::Centered,
+		CRender::Centered,
+		Color(g_Config->menu.colorBackground.r, g_Config->menu.colorBackground.g, g_Config->menu.colorBackground.b, m_OpacityBackground));
+
+	// Top
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText),
+		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		CRender::Centered,
+		CRender::Bottom,
+		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+
+	if (g_Config->menu.useDualColor)
+	{
+		// Top
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText),
+			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			CRender::Centered,
+			CRender::Bottom,
+			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			"tex_optionmenu_game");
+	}
+
+	// Title
+	g_Render.Text(
+		"Akari",
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText / 2),
+		g_Config->menu.sizeText,
+		CRender::Centered,
+		CRender::Centered,
+		Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+}
+
+void Menu::DrawFooter()
+{
+	// Background
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
+		vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+		CRender::Centered,
+		CRender::Centered,
+		Color(g_Config->menu.colorBackground.r, g_Config->menu.colorBackground.g, g_Config->menu.colorBackground.b, m_OpacityBackground));
+
+	// Top
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3),
+		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		CRender::Centered,
+		CRender::Bottom,
+		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+
+	// Bottom
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText),
+		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		CRender::Centered,
+		CRender::Top,
+		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+	
+	if (g_Config->menu.useDualColor)
+	{
+		// Top
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3),
+			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			CRender::Centered,
+			CRender::Bottom,
+			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			"tex_optionmenu_game");
+
+		// Bottom
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText),
+			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			CRender::Centered,
+			CRender::Top,
+			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			"tex_optionmenu_game");
+	}
+
+	// Left
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
+		vec2(g_Config->menu.sizeBorder, g_Config->menu.sizeText),
+		CRender::Right,
+		CRender::Centered,
+		g_Config->menu.useDualColor ? Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal)
+		: Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+
+	// Right
+	g_Render.Rectangle(
+		vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
+		vec2(g_Config->menu.sizeBorder, g_Config->menu.sizeText),
+		CRender::Left,
+		CRender::Centered,
+		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+
+	// Current option counter
+	g_Render.Text(
+		stdc::va("[%i/%i]", m_CurrentOption, m_TotalOptions),
+		vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 4, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
+		g_Config->menu.sizeText,
+		CRender::Right,
+		CRender::Centered,
+		Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+}
+
+void Menu::DrawHighlightBar()
+{
+	vec2 pos = vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - m_HighlightBarPosY - g_Config->menu.sizeText / 2);
+
+	if (g_Config->menu.useDualColor)
+	{
+		g_Render.RectangleGradient(
+			pos,
+			vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+			CRender::Centered,
+			CRender::Centered,
+			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityHighlightBar),
+			Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityHighlightBar));
+	}
+	else
+	{
+		g_Render.Rectangle(
+			pos,
+			vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+			CRender::Centered,
+			CRender::Centered,
+			Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityHighlightBar));
+	}
+}
+
+void Menu::DrawControlsHelp()
+{
+	if (!g_Config->menu.showControlsHelp)
+		return;
+
+	vec2 pos = vec2(-640 + g_Config->menu.safeArea.x + 5, -360 + g_Config->menu.safeArea.y + 5);
+	
+	std::wstring controlsHelpString = m_StateOpened ? L"Use \uF884/\uF885 to scroll | \uF881 to select | \uF880 to go back"
+		: L"Press \uF888 & \uF88A to open Akari menu";
+
+	g_Render.Text(
+		controlsHelpString,
+		pos,
+		g_Config->menu.sizeText,
+		CRender::Left,
+		CRender::Bottom,
+		g_Config->menu.colorText);
+}
+
+void Menu::DrawMovingHelp()
+{
+	if (!m_StateMoving)
+		return;
+
+	g_Render.Text(
+		L"Use \uF88D to move the menu",
+		vec2(),
+		g_Config->menu.sizeText,
+		CRender::Centered,
+		CRender::Centered,
+		g_Config->menu.colorText);
+
+	g_Render.Text(
+		stdc::va("X: %.2f\nY: %.2f", g_Config->menu.position.x, g_Config->menu.position.y),
+		vec2(0, -g_Config->menu.sizeText * 2),
+		g_Config->menu.sizeText,
+		CRender::Centered,
+		CRender::Centered,
+		g_Config->menu.colorText);
+}
+
+void Menu::DrawMenuTitle(const std::string& text)
+{
+	g_Render.Text(
+		text,
+		vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2 + m_SizeBackgroundSpace / 4, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
+		g_Config->menu.sizeText,
+		CRender::Left,
+		CRender::Centered,
+		Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+}
+
+void Menu::DrawMenuOption(const std::string& text)
+{
+	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
+	{
+		g_Render.Text(
+			text,
+			vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2 + m_SizeBackgroundSpace / 2, 
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			g_Config->menu.sizeText,
+			CRender::Left,
+			CRender::Centered,
+			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+	}
+}
+
+void Menu::DrawMenuSubmenu()
+{
+	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
+	{
+		g_Render.Text(
+			">",
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			g_Config->menu.sizeText,
+			CRender::Right,
+			CRender::Centered,
+			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+	}
+}
+
+void Menu::DrawMenuToggle(bool var)
+{
+	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
+	{
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			vec2(g_Config->menu.sizeText * 0.7, g_Config->menu.sizeText * 0.7),
+			CRender::Right,
+			CRender::Centered,
+			var ? Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal)
+			: Color(0.15, 0.15, 0.15, m_OpacityGlobal));
+	}
+}
+
+void Menu::DrawMenuSlider(const std::string& text, float progress)
+{
+	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
+	{
+		float sliderWidth = g_Config->menu.sizeWidth / 4;
+
+		// Bar
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth,
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			vec2(sliderWidth, 2),
+			CRender::Left,
+			CRender::Centered,
+			Color(0.15, 0.15, 0.15, m_OpacityText));
+
+		// Filled bar
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth,
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			vec2((sliderWidth * progress), 2),
+			CRender::Left,
+			CRender::Centered,
+			Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityText));
+
+		// Cursor
+		g_Render.Rectangle(
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth + (sliderWidth * progress),
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			vec2(2, 8),
+			CRender::Centered,
+			CRender::Centered,
+			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+
+		// Value
+		g_Render.Text(
+			text,
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth - 5,
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			g_Config->menu.sizeText,
+			CRender::Right,
+			CRender::Centered,
+			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+	}
+}
+
+void Menu::DrawMenuStringOption(std::string item)
+{
+	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
+	{
+		g_Render.Text(
+			item,
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			g_Config->menu.sizeText,
+			CRender::Right,
+			CRender::Centered,
+			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+	}
+}
+
+void Menu::DrawMenuStringOption(std::wstring item)
+{
+	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
+	{
+		g_Render.Text(
+			item,
+			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			g_Config->menu.sizeText,
+			CRender::Right,
+			CRender::Centered,
+			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+	}
+}
+
+void Menu::Title(const std::string& text)
+{
+	DrawMenuTitle(text);
+}
+
+Menu* Menu::Option(const std::string& text)
+{
+	m_PrintingOption++;
+	DrawMenuOption(text);
+	return this;
+}
+Menu* Menu::Submenu(Function sub)
+{
+	DrawMenuSubmenu();
+	if (IsPressed())
+		ChangeSubmenu(sub);
+	return this;
+}
+
+Menu* Menu::Toggle(bool& var)
+{
+	DrawMenuToggle(var);
+	if (IsPressed())
+		var ^= 1;
+	return this;
+}
+
+Menu* Menu::Toggle(bool& var, Function onEnable, Function onDisable)
+{
+	DrawMenuToggle(var);
+	if (IsPressed())
+	{
+		var ^= 1;
+		if (var)
+		{
+			if (onEnable != nullptr)
+				onEnable();
+		}
+		else
+		{
+			if (onDisable != nullptr)
+				onDisable();
+		}
+	}
+	return this;
+}
+
+Menu* Menu::Action(Function fn)
+{
+	if (fn != nullptr)
+		if (IsPressed())
+			fn();
+	return this;
+}
+
+Menu* Menu::Hover(Function fn)
+{
+	if (fn != nullptr)
+		if (IsHovered())
+			fn();
+	return this;
+}
+
+Menu* Menu::Slider(float& var, float min, float max, float step, unsigned int delay, const std::string& text)
+{
+	processOptionItemControls<float>(var, min, max, step);
+	DrawMenuSlider(stdc::va(text.c_str(), var), (var - min) / (max - min));
+
+	if (IsHovered())
+		m_SliderDelay = delay;
+
+	return this;
+}
+
+Menu* Menu::Slider(int& var, int min, int max, int step, unsigned int delay, const std::string& text)
+{
+	processOptionItemControls<int>(var, min, max, step);
+	DrawMenuSlider(stdc::va(text.c_str(), var), static_cast<float>(var - min) / static_cast<float>(max - min));
+
+	if (IsHovered())
+		m_SliderDelay = delay;
+
+	return this;
+}
+
+Menu* Menu::Strings(const char** items, int& index, int count)
+{
+	processOptionItemControls<int>(index, 0, count - 1, 1);
+
+	if (IsHovered())
+	{
+		std::string selectedItem = items[index];
+		std::string item = ((index > 0) ? "<" : "");
+		item += " " + selectedItem + " " + ((index < count - 1) ? ">" : "");
+
+
+		DrawMenuStringOption(item);
+
+		m_SliderDelay = 200;
+	}
+	else
+		DrawMenuStringOption(items[index]);
+
+	return this;
+}
+
+Menu* Menu::Strings(const wchar_t** items, int& index, int count)
+{
+	processOptionItemControls<int>(index, 0, count - 1, 1);
+
+	if (IsHovered())
+	{
+		std::wstring selectedItem = items[index];
+		std::wstring item = ((index > 0) ? L"<" : L"");
+		item += L" " + selectedItem + L" " + ((index < count - 1) ? L">" : L"");
+
+		DrawMenuStringOption(item);
+
+		m_SliderDelay = 200;
+	}
+	else
+		DrawMenuStringOption(items[index]);
+
+	return this;
+}
