@@ -218,6 +218,7 @@ void OverlaySubmenu()
 
 	g_Menu->Title("Overlay menu");
 	g_Menu->Option("Enable")->Toggle(g_Config->overlay.enable);
+	g_Menu->Option("Refresh delay")->Slider(g_Config->overlay.refreshDelay, 500, 5000, 100, 100, "%i ms");
 	g_Menu->Option("Draw fps")->Toggle(g_Config->overlay.drawFps);
 	g_Menu->Option("Fps precision")->Slider(g_Config->overlay.fpsPrecision, 0, 5, 1);
 	g_Menu->Option("Draw screen resolution")->Toggle(g_Config->overlay.drawScreenRes);

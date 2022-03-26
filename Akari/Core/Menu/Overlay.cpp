@@ -179,7 +179,7 @@ void Overlay::UpdateInfoThread(uint64_t arg)
 
 	while (g_Overlay->m_StateRunning)
 	{
-		Timers::Sleep(500);
+		Timers::Sleep(g_Config->overlay.refreshDelay);
 
 		g_Overlay->m_MemoryUsage = ConsoleInfo::GetMemoryUsage();
 		g_Overlay->m_FanSpeed = ConsoleInfo::GetFanSpeed();

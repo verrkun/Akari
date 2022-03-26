@@ -640,7 +640,7 @@ void Menu::DrawControlsHelp()
 	if (!g_Config->menu.showControlsHelp)
 		return;
 
-	vec2 pos = vec2(-640 + g_Config->menu.safeArea.x + 5, -360 + g_Config->menu.safeArea.y + 5);
+	vec2 pos = vec2(-VIEWPORT_WIDTH / 2 + g_Config->menu.safeArea.x + 5, -VIEWPORT_HEIGHT / 2 + g_Config->menu.safeArea.y + 5);
 	
 	std::wstring controlsHelpString = m_StateOpened ? L"Press \uF888 & \uF88A to close the menu | \uF884/\uF885 to scroll | \uF881 to select | \uF880 to go back"
 		: L"Press \uF888 & \uF88A to open Akari menu";

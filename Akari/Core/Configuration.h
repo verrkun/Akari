@@ -20,6 +20,7 @@ public:
 	} screenshots;
 	struct {
 		bool enable{};
+		int refreshDelay = 500;
 		bool drawFps{};
 		int fpsPrecision{};
 		bool drawScreenRes{};
