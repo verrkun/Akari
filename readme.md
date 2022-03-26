@@ -6,7 +6,7 @@ A VSH menu with multiple functionalities.
 ## Building Requirements
 - Visual Studio 2013+
 - Sony PS3 4.75+ SDK w/ Visual Studio Integration
-- [Fixed std::string library](https://github.com/skiff/libpsutil/releases "Fixed std::string library")
+- [Fixed std library](https://github.com/skiff/libpsutil/releases "Fixed std::string library")
 
 ## Credits
 - @TheRouletteBoi
