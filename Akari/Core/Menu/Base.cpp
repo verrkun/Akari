@@ -271,7 +271,9 @@ void Menu::UpdateButtons()
 		}
 		else if (m_StateOpened && (m_OpacityText == 1.0)) // fully opened
 		{
-			if (IsBackPressed())
+			if (IsOpenPressed())
+				OnClose();
+			else if (IsBackPressed())
 			{
 				if (m_CurrentMenu == m_MainMenu)
 					OnClose();
@@ -640,7 +642,7 @@ void Menu::DrawControlsHelp()
 
 	vec2 pos = vec2(-640 + g_Config->menu.safeArea.x + 5, -360 + g_Config->menu.safeArea.y + 5);
 	
-	std::wstring controlsHelpString = m_StateOpened ? L"Use \uF884/\uF885 to scroll | \uF881 to select | \uF880 to go back"
+	std::wstring controlsHelpString = m_StateOpened ? L"Press \uF888 & \uF88A to close the menu | \uF884/\uF885 to scroll | \uF881 to select | \uF880 to go back"
 		: L"Press \uF888 & \uF88A to open Akari menu";
 
 	g_Render.Text(
@@ -725,8 +727,8 @@ void Menu::DrawMenuToggle(bool var)
 			vec2(g_Config->menu.sizeText * 0.7, g_Config->menu.sizeText * 0.7),
 			CRender::Right,
 			CRender::Centered,
-			var ? Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal)
-			: Color(0.15, 0.15, 0.15, m_OpacityGlobal));
+			var ? Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityText)
+			: Color(0.15, 0.15, 0.15, m_OpacityText));
 	}
 }
 
