@@ -17,7 +17,9 @@ Config::~Config()
 void Config::Load()
 {
 	std::string configPath = File::GetCurrentDir() + "AkariConfig.bin";
-	File::ReadFile(configPath, this, sizeof(Config));
+
+	if (File::FileExist(configPath))
+		File::ReadFile(configPath, this, sizeof(Config));
 }
 
 void Config::Save()

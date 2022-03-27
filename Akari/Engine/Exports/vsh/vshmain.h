@@ -16,4 +16,6 @@ namespace vsh
 	CooperationMode GetCooperationMode();
 	void SetCooperationMode(CooperationMode mode);
 	void ApplyCooperationMode();
+
+	uint32_t GetGameProcessID();
 }

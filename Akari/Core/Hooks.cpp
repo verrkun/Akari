@@ -7,6 +7,7 @@
 #include "../Engine/Rendering.h"
 #include "../Utilities/Memory/ImportsExports.h"
 #include "../Utilities/System/Timers.h"
+#include "../Utilities/System/SystemCalls.h"
 
 using namespace Memory;
 
@@ -68,7 +69,8 @@ void RemoveCCAPIHooks()
 
 void InstallHooks()
 {
-	RemoveCCAPIHooks();
+	if (!Syscall::sys_mapi_is_hen())
+		RemoveCCAPIHooks();
 
 	pafFrameworkRender_Detour = new ImportExportDetour(ImportExportDetour::Export, "paf", 0x85D1D23B, (uint32_t)pafFrameworkRender_Hook);
 	cellPadGetDataExtra_0_Detour = new ImportExportDetour(ImportExportDetour::Export, "sys_io", 0x3733EA3C, (uint32_t)cellPadGetDataExtra_0_Hook);

@@ -1,6 +1,7 @@
 
 #include "Overlay.h"
 #include "../Configuration.h"
+#include "../../Engine/Exports/paf/View.h"
 #include "../../Utilities/System/Timers.h"
 #include <sys/sys_time.h>
 #include <vsh/netctl_main.h>
@@ -32,6 +33,15 @@ Overlay::~Overlay()
 
 void Overlay::OnUpdate()
 {
+	if ((paf::View::Find("game_plugin") || paf::View::Find("game_ext_plugin")) && !m_StateGameRunning)
+	{
+		m_StateGameRunning = true;
+		m_StateGameJustLaunched = true;
+	}
+	else if (!paf::View::Find("game_plugin") && !paf::View::Find("game_ext_plugin"))
+		m_StateGameRunning = false;
+
+
 	UpdatePosition();
 	CalculateFps();
 
@@ -57,19 +67,19 @@ void Overlay::OnUpdate()
 
 	if (g_Config->overlay.drawMemory)
 	{
-		stdc::swprintf(buffer, 0x200, L"Memory: %.1f%% %i / %i KB\n", m_MemoryUsage.percent, m_MemoryUsage.used, m_MemoryUsage.total);
+		stdc::swprintf(buffer, 0x200, L"RAM: %.1f%% %i / %i KB\n", m_MemoryUsage.percent, m_MemoryUsage.used, m_MemoryUsage.total);
 		overlayText += buffer;
 	}
 
 	if (g_Config->overlay.drawCellTemp)
 	{
-		stdc::swprintf(buffer, 0x200, L"Cell: %.1f", m_CellTemp);
+		stdc::swprintf(buffer, 0x200, L"CPU Temp: %.1f", m_CellTemp);
 		overlayText += buffer + GetTemperatureSymbol() + L"\n";
 	}
 
 	if (g_Config->overlay.drawRSXTemp)
 	{
-		stdc::swprintf(buffer, 0x200, L"RSX: %.1f", m_RSXTemp);
+		stdc::swprintf(buffer, 0x200, L"GPU Temp: %.1f", m_RSXTemp);
 		overlayText += buffer + GetTemperatureSymbol() + L"\n";
 	}
 
@@ -180,6 +190,13 @@ void Overlay::UpdateInfoThread(uint64_t arg)
 	while (g_Overlay->m_StateRunning)
 	{
 		Timers::Sleep(g_Config->overlay.refreshDelay);
+
+		// Using syscalls in a loop on hen will cause a black screen when launching a game
+		if (g_Overlay->m_StateGameJustLaunched)
+		{
+			Timers::Sleep(15 * 1000);
+			g_Overlay->m_StateGameJustLaunched = false;
+		}
 
 		g_Overlay->m_MemoryUsage = ConsoleInfo::GetMemoryUsage();
 		g_Overlay->m_FanSpeed = ConsoleInfo::GetFanSpeed();

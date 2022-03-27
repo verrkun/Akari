@@ -4,6 +4,7 @@
 #include "Memory/Patterns.h"
 #include "Memory/Detours.h"
 #include "Memory/ImportsExports.h"
+#include <sys/process.h>
 
 namespace Memory
 {
@@ -37,13 +38,15 @@ namespace Memory
 	template<typename T>
 	inline T Read(uint32_t address)
 	{
-		return *(T*)address;
+		T data;
+		ReadProcessMemory(sys_process_getpid(), address, &data, sizeof(T));
+		return data;
 	}
 
 	template<typename T>
 	inline void Write(uint32_t address, T data)
 	{
-		*(T*)address = data;
+		WriteProcessMemory(sys_process_getpid(), address, &data, sizeof(T));
 	}
 
 	template <typename R, typename... Args>

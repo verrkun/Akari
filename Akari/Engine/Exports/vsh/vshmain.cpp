@@ -18,4 +18,9 @@ namespace vsh
 	{
 		vshmain_5046CFAB(); // always return 0
 	}
+
+	uint32_t GetGameProcessID()
+	{
+		return vshmain_0624D3AE();
+	}
 };

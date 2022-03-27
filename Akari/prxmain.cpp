@@ -12,6 +12,7 @@
 #include "Utilities/System/Timers.h"
 #include <sys/prx.h>
 #include <sys/ppu_thread.h>
+#include <vsh/stdc.h>
 
 // Macros defining our module informations as well as our entry/exit point
 SYS_MODULE_INFO(Akari, 0, BUILD_VERSION_MAJOR, BUILD_VERSION_MINOR);

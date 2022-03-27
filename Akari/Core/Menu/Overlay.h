@@ -24,6 +24,9 @@ public:
 	sys_ppu_thread_t UpdateInfoThreadId = SYS_PPU_THREAD_ID_INVALID;
 
 	bool m_StateRunning;
+	bool m_StateGameRunning{};
+	bool m_StateGameJustLaunched{};
+
 	float m_CellTemp;
 	float m_RSXTemp;
 	float m_FanSpeed;
@@ -31,6 +34,7 @@ public:
 	ConsoleInfo::memUsage_s m_MemoryUsage;
 
 private:
+
 	vec2 m_Position{};
 	CRender::Align m_HorizontalAlignment{};
 	CRender::Align m_VerticalAlignment{};

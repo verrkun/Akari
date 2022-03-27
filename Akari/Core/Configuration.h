@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "Version.h"
 #include "../Utilities/Math.h"
 
 class Config

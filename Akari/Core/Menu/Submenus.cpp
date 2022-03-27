@@ -222,9 +222,9 @@ void OverlaySubmenu()
 	g_Menu->Option("Draw fps")->Toggle(g_Config->overlay.drawFps);
 	g_Menu->Option("Fps precision")->Slider(g_Config->overlay.fpsPrecision, 0, 5, 1);
 	g_Menu->Option("Draw screen resolution")->Toggle(g_Config->overlay.drawScreenRes);
-	g_Menu->Option("Draw memory usage")->Toggle(g_Config->overlay.drawMemory);
-	g_Menu->Option("Draw Cell temperature")->Toggle(g_Config->overlay.drawCellTemp);
-	g_Menu->Option("Draw RSX temperature")->Toggle(g_Config->overlay.drawRSXTemp);
+	g_Menu->Option("Draw RAM usage")->Toggle(g_Config->overlay.drawMemory);
+	g_Menu->Option("Draw CPU temperature")->Toggle(g_Config->overlay.drawCellTemp);
+	g_Menu->Option("Draw GPU temperature")->Toggle(g_Config->overlay.drawRSXTemp);
 	g_Menu->Option("Temperature type")->Strings(temperatureTypes, g_Config->overlay.tempType, 3);
 	g_Menu->Option("Draw fan speed")->Toggle(g_Config->overlay.drawFanSpeed);
 	g_Menu->Option("Draw local IP address")->Toggle(g_Config->overlay.drawLocalIp);
