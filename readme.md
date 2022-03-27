@@ -18,5 +18,4 @@ A fully customizable VSH menu with multiple functionalities.
 - [Fixed std library](https://github.com/skiff/libpsutil/releases "Fixed std library")
 
 ## Credits
-- [@TheRouletteBoi](https://github.com/TheRouletteBoi "TheRouLetteBoi")
-- [@iMoD1998](https://github.com/iMoD1998 "Adam")
+- [@TheRouletteBoi](https://github.com/TheRouletteBoi "TheRouLetteBoi") for his helpful repositories, help and support
