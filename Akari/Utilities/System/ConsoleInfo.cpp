@@ -2,6 +2,7 @@
 #include "ConsoleInfo.h"
 #include "SystemCalls.h"
 #include "../Math.h"
+#include <cell/cell_fs.h>
 #include <vsh/stdc.h>
 
 using namespace Syscall;
@@ -15,7 +16,7 @@ namespace ConsoleInfo
 		return static_cast<float>(temperature);
 	}
 
-	float GetTemperatureFahreneit(int dev_id)
+	float GetTemperatureFahrenheit(int dev_id)
 	{
 		return (GetTemperatureCelsius(dev_id) * 1.8) + 32.0;
 	}

@@ -264,7 +264,7 @@ void Menu::UpdateButtons()
 	}
 	else
 	{
-		if (!m_StateOpened && (m_OpacityBackground == 0.0)) // fully closed
+		if (!m_StateOpened && (m_OpacityGlobal == 0.0)) // fully closed
 		{
 			if (IsOpenPressed())
 				OnOpen();

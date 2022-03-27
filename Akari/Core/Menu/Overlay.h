@@ -15,6 +15,8 @@ public:
 	void OnUpdate();
 
 private:
+	void DrawOverlay();
+
 	void UpdatePosition();
 	void CalculateFps();
 	std::wstring GetTemperatureSymbol();
@@ -23,15 +25,16 @@ private:
 public:
 	sys_ppu_thread_t UpdateInfoThreadId = SYS_PPU_THREAD_ID_INVALID;
 
-	bool m_StateRunning;
+	bool m_StateRunning{};
 	bool m_StateGameRunning{};
 	bool m_StateGameJustLaunched{};
 
-	float m_CellTemp;
-	float m_RSXTemp;
-	float m_FanSpeed;
-	std::string m_LocalIp;
-	ConsoleInfo::memUsage_s m_MemoryUsage;
+	float m_CPUTemp{};
+	float m_GPUTemp{};
+	float m_FanSpeed{};
+	std::string m_LocalIp{};
+	ConsoleInfo::memUsage_s m_MemoryUsage{};
+
 
 private:
 
@@ -47,8 +50,6 @@ private:
 	double m_FpsTimeReport = 0;
 	double m_FpsTimeLastReport = 0;
 	float m_FpsREPORT_TIME = 1.0f;
-
-	static wchar_t buffer[0x200];
 };
 
 extern Overlay* g_Overlay;

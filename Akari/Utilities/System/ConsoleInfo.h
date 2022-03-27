@@ -30,7 +30,7 @@ namespace ConsoleInfo
 	};
 
 	float GetTemperatureCelsius(int dev_id);
-	float GetTemperatureFahreneit(int dev_id);
+	float GetTemperatureFahrenheit(int dev_id);
 	float GetTemperatureKelvin(int dev_id);
 	float GetFanSpeed();
 	memUsage_s GetMemoryUsage();

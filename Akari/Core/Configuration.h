@@ -24,8 +24,8 @@ public:
 		int fpsPrecision{};
 		bool drawScreenRes{};
 		bool drawMemory{};
-		bool drawCellTemp{};
-		bool drawRSXTemp{};
+		bool drawCPUTemp{};
+		bool drawGPUTemp{};
 		int tempType{};
 		bool drawFanSpeed{};
 		bool drawLocalIp{};

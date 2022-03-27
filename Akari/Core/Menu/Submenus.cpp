@@ -49,13 +49,13 @@ void ConsoleManagerInfoSubmenu()
 		switch (g_Config->overlay.tempType)
 		{
 		case 0: // Celsius
-			stdc::swprintf(buffer, 0x20, L"CELL: %.1f\u00B0C, RSX: %.1f\u00B0C", ConsoleInfo::GetTemperatureCelsius(0), ConsoleInfo::GetTemperatureCelsius(1));
+			stdc::swprintf(buffer, 0x20, L"CPU: %.1f\u00B0C, GPU: %.1f\u00B0C", ConsoleInfo::GetTemperatureCelsius(0), ConsoleInfo::GetTemperatureCelsius(1));
 			break;
 		case 1: // Fahrenheit
-			stdc::swprintf(buffer, 0x20, L"CELL: %.1f\u00B0F, RSX: %.1f\u00B0F", ConsoleInfo::GetTemperatureFahreneit(0), ConsoleInfo::GetTemperatureFahreneit(1));
+			stdc::swprintf(buffer, 0x20, L"CPU: %.1f\u00B0F, GPU: %.1f\u00B0F", ConsoleInfo::GetTemperatureFahrenheit(0), ConsoleInfo::GetTemperatureFahrenheit(1));
 			break;
 		case 2: // Kelvin
-			stdc::swprintf(buffer, 0x20, L"CELL: %.1fK, RSX: %.1fK", ConsoleInfo::GetTemperatureKelvin(0), ConsoleInfo::GetTemperatureKelvin(1));
+			stdc::swprintf(buffer, 0x20, L"CPU: %.1fK, GPU: %.1fK", ConsoleInfo::GetTemperatureKelvin(0), ConsoleInfo::GetTemperatureKelvin(1));
 			break;
 		}
 
@@ -223,8 +223,8 @@ void OverlaySubmenu()
 	g_Menu->Option("Fps precision")->Slider(g_Config->overlay.fpsPrecision, 0, 5, 1);
 	g_Menu->Option("Draw screen resolution")->Toggle(g_Config->overlay.drawScreenRes);
 	g_Menu->Option("Draw RAM usage")->Toggle(g_Config->overlay.drawMemory);
-	g_Menu->Option("Draw CPU temperature")->Toggle(g_Config->overlay.drawCellTemp);
-	g_Menu->Option("Draw GPU temperature")->Toggle(g_Config->overlay.drawRSXTemp);
+	g_Menu->Option("Draw CPU temperature")->Toggle(g_Config->overlay.drawCPUTemp);
+	g_Menu->Option("Draw GPU temperature")->Toggle(g_Config->overlay.drawGPUTemp);
 	g_Menu->Option("Temperature type")->Strings(temperatureTypes, g_Config->overlay.tempType, 3);
 	g_Menu->Option("Draw fan speed")->Toggle(g_Config->overlay.drawFanSpeed);
 	g_Menu->Option("Draw local IP address")->Toggle(g_Config->overlay.drawLocalIp);

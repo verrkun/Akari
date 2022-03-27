@@ -16,12 +16,13 @@ ImportExportDetour* cellPadGetDataExtra_0_Detour;
 
 void pafFrameworkRender_Hook(void* framework, float frameTime)
 {
+	pafFrameworkRender_Detour->CallOriginal<void>(framework, frameTime);
+
 	g_Helpers.OnUpdate();
 	g_Render.OnUpdate();
 	g_Overlay->OnUpdate();
 	g_Menu->OnUpdate();
 
-	pafFrameworkRender_Detour->CallOriginal<void>(framework, frameTime);
 }
 
 int cellPadGetDataExtra_0_Hook(unsigned int port, unsigned int deviceType, CellPadData* data)

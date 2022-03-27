@@ -10,8 +10,6 @@
 
 Overlay* g_Overlay;
 
-wchar_t Overlay::buffer[0x200]{0};
-
 Overlay::Overlay()
 {
 	sys_ppu_thread_create(&UpdateInfoThreadId, UpdateInfoThread, 0, 0xB01, 512, SYS_PPU_THREAD_CREATE_JOINABLE, "Overlay::UpdateInfoThread()");
@@ -48,10 +46,14 @@ void Overlay::OnUpdate()
 	UpdatePosition();
 	CalculateFps();
 
-	if (!g_Config->overlay.enable)
-		return;
+	if (g_Config->overlay.enable)
+		DrawOverlay();
+}
 
+void Overlay::DrawOverlay()
+{
 	std::wstring overlayText = L"";
+	wchar_t buffer[0x200];
 
 	if (g_Config->overlay.drawFps)
 	{
@@ -74,15 +76,15 @@ void Overlay::OnUpdate()
 		overlayText += buffer;
 	}
 
-	if (g_Config->overlay.drawCellTemp)
+	if (g_Config->overlay.drawCPUTemp)
 	{
-		stdc::swprintf(buffer, 0x200, L"CPU Temp: %.1f", m_CellTemp);
+		stdc::swprintf(buffer, 0x200, L"CPU Temp: %.1f", m_CPUTemp);
 		overlayText += buffer + GetTemperatureSymbol() + L"\n";
 	}
 
-	if (g_Config->overlay.drawRSXTemp)
+	if (g_Config->overlay.drawGPUTemp)
 	{
-		stdc::swprintf(buffer, 0x200, L"GPU Temp: %.1f", m_RSXTemp);
+		stdc::swprintf(buffer, 0x200, L"GPU Temp: %.1f", m_GPUTemp);
 		overlayText += buffer + GetTemperatureSymbol() + L"\n";
 	}
 
@@ -195,6 +197,7 @@ void Overlay::UpdateInfoThread(uint64_t arg)
 		Timers::Sleep(g_Config->overlay.refreshDelay);
 
 		// Using syscalls in a loop on hen will cause a black screen when launching a game
+		// so in order to fix this we need to sleep 10/15 seconds when a game is launched
 		if (g_Overlay->m_StateGameJustLaunched)
 		{
 			Timers::Sleep(15 * 1000);
@@ -207,16 +210,16 @@ void Overlay::UpdateInfoThread(uint64_t arg)
 		switch (g_Config->overlay.tempType)
 		{
 		case 0:
-			g_Overlay->m_CellTemp = ConsoleInfo::GetTemperatureCelsius(0);
-			g_Overlay->m_RSXTemp = ConsoleInfo::GetTemperatureCelsius(1);
+			g_Overlay->m_CPUTemp = ConsoleInfo::GetTemperatureCelsius(0);
+			g_Overlay->m_GPUTemp = ConsoleInfo::GetTemperatureCelsius(1);
 			break;
 		case 1:
-			g_Overlay->m_CellTemp = ConsoleInfo::GetTemperatureFahreneit(0);
-			g_Overlay->m_RSXTemp = ConsoleInfo::GetTemperatureFahreneit(1);
+			g_Overlay->m_CPUTemp = ConsoleInfo::GetTemperatureFahrenheit(0);
+			g_Overlay->m_GPUTemp = ConsoleInfo::GetTemperatureFahrenheit(1);
 			break;
 		case 2:
-			g_Overlay->m_CellTemp = ConsoleInfo::GetTemperatureKelvin(0);
-			g_Overlay->m_RSXTemp = ConsoleInfo::GetTemperatureKelvin(1);
+			g_Overlay->m_CPUTemp = ConsoleInfo::GetTemperatureKelvin(0);
+			g_Overlay->m_GPUTemp = ConsoleInfo::GetTemperatureKelvin(1);
 			break;
 		}
 
