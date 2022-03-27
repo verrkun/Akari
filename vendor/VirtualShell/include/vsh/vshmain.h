@@ -220,7 +220,6 @@ extern "C" int32_t vshmain_BEF63A14(void);  // setting net, base pointer for rec
 // vshmain_24C860B0  // SetRegistry2NetCtlSetting
 
 extern "C" uint32_t vshmain_0624D3AE(void);  // returns game u32 process id
-#define GetGameProcessID vshmain_0624D3AE
 
 // vshmain_005B064D  // _ZN3vsh23sysutil_cxmlutil_server15MallocAllocatorEN4cxml14AllocationTypeEPvS3_jPS3_Pj | vsh::sysutil_cxmlutil_server::MallocAllocator(cxml::AllocationType, void *, void *, unsigned int, void **, unsigned int *)
 // vshmain_0D257CFF  // Get dev_type, port_num (pad id), intr_type | vshmain_D257CFF(1, int * [3] {dev_type, port_num (pad id), intr_type} )
