@@ -33,12 +33,15 @@ Overlay::~Overlay()
 
 void Overlay::OnUpdate()
 {
-	if ((paf::View::Find("game_plugin") || paf::View::Find("game_ext_plugin")) && !m_StateGameRunning)
+	paf::View* game_plugin = paf::View::Find("game_plugin");
+	paf::View* game_ext_plugin = paf::View::Find("game_ext_plugin");
+
+	if ((game_plugin || game_ext_plugin) && !m_StateGameRunning)
 	{
 		m_StateGameRunning = true;
 		m_StateGameJustLaunched = true;
 	}
-	else if (!paf::View::Find("game_plugin") && !paf::View::Find("game_ext_plugin"))
+	else if (!game_plugin && !game_ext_plugin)
 		m_StateGameRunning = false;
 
 
