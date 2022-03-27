@@ -1,11 +1,16 @@
 # Akari
 A fully customizable VSH menu with multiple functionalities.
+(idk what else to add)
+
+## Notes
+- Support only 720p/1080p
+- Only tested on 4.84 DEX with Cobra 8.3 and on 4.82 CEX with HEN 3.0.3 Debug
+- Should work on all 4.75+ firmwares (CEX/DEX/DECR) as long as it is loaded via Cobra, Mamba or HEN
 
 ## Preview
-![2022-03-26_17-21-15](https://user-images.githubusercontent.com/85250588/160248650-9a443524-a737-43cd-9e20-e5509efb9652.png)
-![2022-03-26_17-21-42](https://user-images.githubusercontent.com/85250588/160248633-5b961ca7-f61a-4368-8c43-4719f74b3728.png)
-![2022-03-26_17-22-02](https://user-images.githubusercontent.com/85250588/160248641-d754aadc-ea2d-4e6b-9c5a-489f63fd724d.png)
-
+![2022-03-27_14-42-10](https://user-images.githubusercontent.com/85250588/160284617-befda427-14ca-463e-9e0f-4ab0ba59707f.png)
+![2022-03-27_14-42-33](https://user-images.githubusercontent.com/85250588/160284706-c9435399-740a-4ab8-b6d8-cd2fc41ed2a0.png)
+![2022-03-27_14-42-46](https://user-images.githubusercontent.com/85250588/160284724-191861c3-29e9-4a31-ba99-6e157dc83240.png)
 
 ## Building Requirements
 - Visual Studio 2013+
@@ -13,5 +18,5 @@ A fully customizable VSH menu with multiple functionalities.
 - [Fixed std library](https://github.com/skiff/libpsutil/releases "Fixed std library")
 
 ## Credits
-- [@TheRouletteBoi](https://github.com/TheRouletteBoi "TheRouletteBoi")
+- [@TheRouletteBoi](https://github.com/TheRouletteBoi "TheRouLetteBoi")
 - [@iMoD1998](https://github.com/iMoD1998 "Adam")
