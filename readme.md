@@ -1,6 +1,6 @@
 # Akari
 A fully customizable VSH menu with multiple functionalities.
-(idk what else to add)
+(idk what else to say)
 
 ## Notes
 - Support only 720p/1080p
