@@ -8,6 +8,7 @@ using Function = void(*)();
 class Menu
 {
 public:
+	Menu() = default;
 	Menu(Function mainSubmenu);
 
 	bool IsOpened();
@@ -17,16 +18,16 @@ public:
 	void OnUpdate();
 
 	void Title(const std::string& text);
-	Menu* Option(const std::string& text);
-	Menu* Submenu(Function sub);
-	Menu* Toggle(bool& var);
-	Menu* Toggle(bool& var, Function onEnable, Function onDisable);
-	Menu* Action(Function fn);
-	Menu* Hover(Function fn);
-	Menu* Slider(float& var, float min, float max, float step, unsigned int delay = 100, const std::string& text = "%.2f");
-	Menu* Slider(int& var, int min, int max, int step, unsigned int delay = 100, const std::string& text = "%i");
-	Menu* Strings(const char** items, int& index, int count);
-	Menu* Strings(const wchar_t** items, int& index, int count);
+	Menu& Option(const std::string& text);
+	Menu& Submenu(Function sub);
+	Menu& Toggle(bool& var);
+	Menu& Toggle(bool& var, Function onEnable, Function onDisable);
+	Menu& Action(Function fn);
+	Menu& Hover(Function fn);
+	Menu& Slider(float& var, float min, float max, float step, unsigned int delay = 100, const std::string& text = "%.2f");
+	Menu& Slider(int& var, int min, int max, int step, unsigned int delay = 100, const std::string& text = "%i");
+	Menu& Strings(const char** items, int& index, int count);
+	Menu& Strings(const wchar_t** items, int& index, int count);
 
 private:
 	bool IsInitialized();
@@ -145,4 +146,4 @@ private:
 	unsigned int m_SliderDelay = 200;
 };
 
-extern Menu* g_Menu;
+extern Menu g_Menu;

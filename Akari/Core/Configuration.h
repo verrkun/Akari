@@ -7,10 +7,10 @@ class Config
 {
 public:
 	Config();
-	~Config();
 
 	void Load();
 	void Save();
+	void Reset();
 
 public:
 	struct {
@@ -48,4 +48,4 @@ public:
 	} menu;
 };
 
-extern Config* g_Config;
+extern Config g_Config;

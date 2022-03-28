@@ -17,11 +17,30 @@ Helpers::Helpers()
 
 void Helpers::OnUpdate()
 {
+	// Update plugins and widgets pointers
 	system_plugin = paf::View::Find("system_plugin");
+	game_plugin = paf::View::Find("game_plugin");
+	game_ext_plugin = paf::View::Find("game_ext_plugin");
+
 	page_autooff_guide = system_plugin ? system_plugin->FindWidget("page_autooff_guide") : nullptr;
 
-	if (g_Config->screenshots.enableBinds && ScreenshotsBinds())
+
+	MonitorGameState();
+
+	if (g_Config.screenshots.enableBinds && ScreenshotsBinds())
 		TakeScreenshot();
+}
+
+void Helpers::MonitorGameState()
+{
+	// Detect game launch 
+	if (vsh::GetCooperationMode() != vsh::CooperationMode::XMB && !m_StateGameRunning)
+	{
+		m_StateGameRunning = true;
+		m_StateGameJustLaunched = true;
+	}
+	else if (vsh::GetCooperationMode() == vsh::CooperationMode::XMB)
+		m_StateGameRunning = false;
 }
 
 void Helpers::TakeScreenshot()
@@ -66,7 +85,7 @@ void Helpers::TakeScreenshot()
 
 bool Helpers::ScreenshotsBinds()
 {
-	switch (g_Config->screenshots.binds)
+	switch (g_Config.screenshots.binds)
 	{
 	case 0: return g_Input.IsButtonBinds(CInput::BUTTON_L1, CInput::BUTTON_PAD_UP);
 	case 1: return g_Input.IsButtonBinds(CInput::BUTTON_L1, CInput::BUTTON_PAD_DOWN);

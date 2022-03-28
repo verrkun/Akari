@@ -10,24 +10,23 @@ class Overlay
 {
 public:
 	Overlay();
-	~Overlay();
 
 	void OnUpdate();
+	void OnShutdown();
+
+	std::wstring GetTemperatureSymbol();
 
 private:
 	void DrawOverlay();
 
 	void UpdatePosition();
 	void CalculateFps();
-	std::wstring GetTemperatureSymbol();
 	static void UpdateInfoThread(uint64_t arg);
 
 public:
 	sys_ppu_thread_t UpdateInfoThreadId = SYS_PPU_THREAD_ID_INVALID;
 
 	bool m_StateRunning{};
-	bool m_StateGameRunning{};
-	bool m_StateGameJustLaunched{};
 
 	float m_CPUTemp{};
 	float m_GPUTemp{};
@@ -35,9 +34,7 @@ public:
 	std::string m_LocalIp{};
 	ConsoleInfo::memUsage_s m_MemoryUsage{};
 
-
 private:
-
 	vec2 m_Position{};
 	CRender::Align m_HorizontalAlignment{};
 	CRender::Align m_VerticalAlignment{};
@@ -52,4 +49,4 @@ private:
 	float m_FpsREPORT_TIME = 1.0f;
 };
 
-extern Overlay* g_Overlay;
+extern Overlay g_Overlay;

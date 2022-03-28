@@ -106,24 +106,8 @@ void CRender::Text(const std::wstring& text, vec2 position, float height, Align 
 
 void CRender::Text(const std::string& text, vec2 position, float height, Align horizontalAlign, Align verticalAlign, Color color, float angle)
 {
-	paf::PhText* phText = GetText(m_CurrentText);
-	if (!phText)
-		return;
-
-	if (!phText->IsAttached())
-		return;
-
-	position.y += (height * 0.15);
-
-	phText->SetText(text)
-		.SetTextHeight(height * 0.8)
-		.SetPosition(position)
-		.SetColor(color)
-		.SetStyle(paf::PhWidget::Anchor, int(horizontalAlign | verticalAlign))
-		.SetStyle(paf::PhWidget::TextAlignment, int(horizontalAlign))
-		.SetRotation(angle, false);
-
-	m_CurrentText++;
+	std::wstring ws(text.begin(), text.end());
+	Text(ws, position, height, horizontalAlign, verticalAlign, color, angle);
 }
 
 paf::PhPlane* CRender::CreatePlane(const std::string& widgetName)

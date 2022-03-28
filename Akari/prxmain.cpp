@@ -32,15 +32,15 @@ extern "C"
 			g_Render = CRender();
 			g_Helpers = Helpers();
 
-			g_Config = new Config();
-			g_Menu = new Menu(MainSubmenu);
-			g_Overlay = new Overlay();
+			g_Config = Config();
+			g_Menu = Menu(MainSubmenu);
+			g_Overlay = Overlay();
 
 			InstallHooks();
 
 			sys_ppu_thread_exit(0);
 		}, 
-			0, 0x421, 2048, SYS_PPU_THREAD_CREATE_JOINABLE, "AkariModuleStart");
+			0, 0x420, 1536, SYS_PPU_THREAD_CREATE_JOINABLE, "AkariModuleStart");
 
 		// Exit thread using directly the syscall and not the user mode library or else we will crash
 		Syscall::_sys_ppu_thread_exit(0);
@@ -55,14 +55,13 @@ extern "C"
 		{
 			RemoveHooks();
 
-			delete g_Overlay;
-			delete g_Menu;
-			delete g_Config;
+			g_Overlay.OnShutdown();
+			g_Config.Save();
 			g_Render.DestroyPlanesAndTexts();
 
 			// Prevent unload too fast (give time to other threads to finish)
 			sys_ppu_thread_yield();
-			Timers::Sleep(1000);
+			Timers::Sleep(1337);
 
 			if (gMainPpuThreadId != SYS_PPU_THREAD_ID_INVALID)
 			{

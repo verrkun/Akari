@@ -20,8 +20,8 @@ void pafFrameworkRender_Hook(void* framework, float frameTime)
 
 	g_Helpers.OnUpdate();
 	g_Render.OnUpdate();
-	g_Overlay->OnUpdate();
-	g_Menu->OnUpdate();
+	g_Overlay.OnUpdate();
+	g_Menu.OnUpdate();
 
 }
 
@@ -33,13 +33,13 @@ int cellPadGetDataExtra_0_Hook(unsigned int port, unsigned int deviceType, CellP
 	int returnValue = cellPadGetDataExtra_0_Detour->CallOriginal<int>(port, deviceType, g_Input.GetInputData());
 	std::memcpy(data, g_Input.GetInputData(), sizeof(CellPadData));
 
-	if (g_Menu->IsOpened())
+	if (g_Menu.IsOpened())
 	{
 		// Clear button flags
 		data->button[CELL_PAD_BTN_OFFSET_DIGITAL1] &= ~(CELL_PAD_CTRL_LEFT | CELL_PAD_CTRL_DOWN | CELL_PAD_CTRL_RIGHT | CELL_PAD_CTRL_UP);
 		data->button[CELL_PAD_BTN_OFFSET_DIGITAL2] &= ~(CELL_PAD_CTRL_CROSS | CELL_PAD_CTRL_CIRCLE);
 	
-		if (g_Menu->IsMoving())
+		if (g_Menu.IsMoving())
 		{
 			// Clear analog values
 			data->button[CELL_PAD_BTN_OFFSET_ANALOG_RIGHT_X] = 128;

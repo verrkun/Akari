@@ -8,7 +8,7 @@
 #include "../../Utilities/System.h"
 #include <vsh/stdc.h>
 
-Menu* g_Menu;
+Menu g_Menu;
 
 Menu::Menu(Function mainSubmenu)
 	: m_MainMenu(mainSubmenu) {}
@@ -148,11 +148,11 @@ void Menu::OnOpen()
 	m_CurrentIndex = (m_SavedMenu == nullptr) ? 1 : m_SavedCurrentIndex;
 
 	// opening animation
-	g_ChangeOvertime.Add(&m_OpacityBackground, g_Config->menu.colorBackground.a, 200);
+	g_ChangeOvertime.Add(&m_OpacityBackground, g_Config.menu.colorBackground.a, 200);
 	g_ChangeOvertime.Add(&m_OpacityGlobal, 1, 200);
 	g_ChangeOvertime.Add(&m_OpacityHighlightBar, 0.4, 200, 200);
 	g_ChangeOvertime.Add(&m_OpacityText, 1, 200, 200);
-	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config.menu.sizeText, 250, 0, true);
 }
 
 void Menu::OnClose()
@@ -179,7 +179,7 @@ void Menu::OnCancel()
 	m_CurrentOption = m_LastOption[m_SubmenuLevel];
 	m_CurrentIndex = m_LastIndex[m_SubmenuLevel];
 
-	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config.menu.sizeText, 250, 0, true);
 }
 
 void Menu::OnScrollUp()
@@ -199,7 +199,7 @@ void Menu::OnScrollUp()
 		m_CurrentIndex = (m_TotalOptions > maxOptionsPerPage) ? m_CurrentOption - maxOptionsPerPage + 1 : 1;
 	}
 
-	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config.menu.sizeText, 250, 0, true);
 }
 
 void Menu::OnScrollDown()
@@ -219,7 +219,7 @@ void Menu::OnScrollDown()
 		m_CurrentIndex = 1;
 	}
 
-	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 250, 0, true);
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config.menu.sizeText, 250, 0, true);
 }
 
 void Menu::EnterSubmenu(Function submenu)
@@ -235,7 +235,7 @@ void Menu::EnterSubmenu(Function submenu)
 	m_CurrentIndex = 1;
 	m_SubmenuLevel++;
 
-	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText, 200, 0, true);
+	g_ChangeOvertime.Add(&m_HighlightBarPosY, (m_CurrentOption - m_CurrentIndex) * g_Config.menu.sizeText, 200, 0, true);
 }
 
 void Menu::ChangeSubmenu(Function submenu)
@@ -246,7 +246,7 @@ void Menu::ChangeSubmenu(Function submenu)
 
 void Menu::PlaySound(const char* sound)
 {
-	if (g_Config->menu.useSound)
+	if (g_Config.menu.useSound)
 	{
 		if (!g_Helpers.system_plugin)
 			return;
@@ -297,32 +297,32 @@ void Menu::UpdatePosition()
 
 		if (stickX != 0.0)
 		{
-			float xAdvance = g_Config->menu.position.x + stickX * 5.0;
-			float xSafeLimit = VIEWPORT_WIDTH / 2 - g_Config->menu.sizeWidth / 2 - g_Config->menu.sizeBorder;
+			float xAdvance = g_Config.menu.position.x + stickX * 5.0;
+			float xSafeLimit = VIEWPORT_WIDTH / 2 - g_Config.menu.sizeWidth / 2 - g_Config.menu.sizeBorder;
 
 			if (xAdvance > -xSafeLimit && xAdvance < xSafeLimit)
-				g_Config->menu.position.x += stickX * 5.0;
+				g_Config.menu.position.x += stickX * 5.0;
 
-			if (g_Config->menu.position.x > xSafeLimit)
-				g_Config->menu.position.x = xSafeLimit;
+			if (g_Config.menu.position.x > xSafeLimit)
+				g_Config.menu.position.x = xSafeLimit;
 
-			if (g_Config->menu.position.x < -xSafeLimit)
-				g_Config->menu.position.x = -xSafeLimit;
+			if (g_Config.menu.position.x < -xSafeLimit)
+				g_Config.menu.position.x = -xSafeLimit;
 		}
 
 		if (stickY != 0.0)
 		{
-			float yAdvance = g_Config->menu.position.y + stickY * 5.0;
-			float ySafeLimit = VIEWPORT_HEIGHT / 2 - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 4 - g_Config->menu.sizeText;
+			float yAdvance = g_Config.menu.position.y + stickY * 5.0;
+			float ySafeLimit = VIEWPORT_HEIGHT / 2 - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 4 - g_Config.menu.sizeText;
 
 			if (yAdvance > -ySafeLimit && yAdvance < ySafeLimit)
-				g_Config->menu.position.y += stickY * 5.0;
+				g_Config.menu.position.y += stickY * 5.0;
 
-			if (g_Config->menu.position.y > ySafeLimit)
-				g_Config->menu.position.y = ySafeLimit;
+			if (g_Config.menu.position.y > ySafeLimit)
+				g_Config.menu.position.y = ySafeLimit;
 
-			if (g_Config->menu.position.y < -ySafeLimit)
-				g_Config->menu.position.y = -ySafeLimit;
+			if (g_Config.menu.position.y < -ySafeLimit)
+				g_Config.menu.position.y = -ySafeLimit;
 		}
 	}
 }
@@ -339,7 +339,7 @@ void Menu::UpdateBackgroundSize()
 		if (!optionsCount)
 			return;
 
-		float size = g_Config->menu.sizeText * optionsCount + m_SizeBackgroundSpace * 2;
+		float size = g_Config.menu.sizeText * optionsCount + m_SizeBackgroundSpace * 2;
 		unsigned int timeNow = Timers::GetTimeNow();
 
 		if (done && (timeNow - lastTime >= 200))
@@ -361,7 +361,7 @@ void Menu::UpdateHighlightBarPos()
 		static bool done = false;
 		static unsigned int lastTime = 0;
 
-		float pos = (m_CurrentOption - m_CurrentIndex) * g_Config->menu.sizeText;
+		float pos = (m_CurrentOption - m_CurrentIndex) * g_Config.menu.sizeText;
 		unsigned int timeNow = Timers::GetTimeNow();
 
 		if (done && (timeNow - lastTime >= 200))
@@ -390,7 +390,7 @@ void Menu::UpdateUI()
 
 		// Update background opacity
 		if (m_OpacityGlobal == 1.0)
-			m_OpacityBackground = g_Config->menu.colorBackground.a;
+			m_OpacityBackground = g_Config.menu.colorBackground.a;
 
 		DrawHeader();
 		DrawFooter();
@@ -435,212 +435,212 @@ void Menu::DrawBody()
 {
 	// Background
 	g_Render.Rectangle(
-		g_Config->menu.position,
-		vec2(g_Config->menu.sizeWidth, m_SizeBackground),
+		g_Config.menu.position,
+		vec2(g_Config.menu.sizeWidth, m_SizeBackground),
 		CRender::Centered,
 		CRender::Centered,
-		Color(g_Config->menu.colorBackground.r, g_Config->menu.colorBackground.g, g_Config->menu.colorBackground.b, m_OpacityBackground));
+		Color(g_Config.menu.colorBackground.r, g_Config.menu.colorBackground.g, g_Config.menu.colorBackground.b, m_OpacityBackground));
 
 	// Top
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2),
-		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y + m_SizeBackground / 2),
+		vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 		CRender::Centered,
 		CRender::Bottom,
-		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 
 	// Bottom
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2),
-		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y - m_SizeBackground / 2),
+		vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 		CRender::Centered,
 		CRender::Top,
-		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 
-	if (g_Config->menu.useDualColor)
+	if (g_Config.menu.useDualColor)
 	{
 		// Top
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2),
-			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			vec2(g_Config.menu.position.x, g_Config.menu.position.y + m_SizeBackground / 2),
+			vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 			CRender::Centered,
 			CRender::Bottom,
-			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityGlobal),
 			"tex_optionmenu_game");
 
 		// Bottom
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2),
-			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			vec2(g_Config.menu.position.x, g_Config.menu.position.y - m_SizeBackground / 2),
+			vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 			CRender::Centered,
 			CRender::Top,
-			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityGlobal),
 			"tex_optionmenu_game");
 	}
 
 	// Left
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2, g_Config->menu.position.y),
-		vec2(g_Config->menu.sizeBorder, m_SizeBackground),
+		vec2(g_Config.menu.position.x - g_Config.menu.sizeWidth / 2, g_Config.menu.position.y),
+		vec2(g_Config.menu.sizeBorder, m_SizeBackground),
 		CRender::Right,
 		CRender::Centered,
-		g_Config->menu.useDualColor ? Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal)
-		: Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		g_Config.menu.useDualColor ? Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityGlobal)
+		: Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 
 	// Right
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2, g_Config->menu.position.y),
-		vec2(g_Config->menu.sizeBorder, m_SizeBackground),
+		vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2, g_Config.menu.position.y),
+		vec2(g_Config.menu.sizeBorder, m_SizeBackground),
 		CRender::Left,
 		CRender::Centered,
-		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 }
 
 void Menu::DrawHeader()
 {
 	// Background
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText / 2),
-		vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y + m_SizeBackground / 2 + g_Config.menu.sizeBorder + g_Config.menu.sizeText / 2),
+		vec2(g_Config.menu.sizeWidth, g_Config.menu.sizeText),
 		CRender::Centered,
 		CRender::Centered,
-		Color(g_Config->menu.colorBackground.r, g_Config->menu.colorBackground.g, g_Config->menu.colorBackground.b, m_OpacityBackground));
+		Color(g_Config.menu.colorBackground.r, g_Config.menu.colorBackground.g, g_Config.menu.colorBackground.b, m_OpacityBackground));
 
 	// Top
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText),
-		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y + m_SizeBackground / 2 + g_Config.menu.sizeBorder + g_Config.menu.sizeText),
+		vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 		CRender::Centered,
 		CRender::Bottom,
-		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 
-	if (g_Config->menu.useDualColor)
+	if (g_Config.menu.useDualColor)
 	{
 		// Top
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText),
-			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			vec2(g_Config.menu.position.x, g_Config.menu.position.y + m_SizeBackground / 2 + g_Config.menu.sizeBorder + g_Config.menu.sizeText),
+			vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 			CRender::Centered,
 			CRender::Bottom,
-			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityGlobal),
 			"tex_optionmenu_game");
 	}
 
 	// Title
 	g_Render.Text(
 		"Akari",
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 + g_Config->menu.sizeBorder + g_Config->menu.sizeText / 2),
-		g_Config->menu.sizeText,
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y + m_SizeBackground / 2 + g_Config.menu.sizeBorder + g_Config.menu.sizeText / 2),
+		g_Config.menu.sizeText,
 		CRender::Centered,
 		CRender::Centered,
-		Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+		Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 }
 
 void Menu::DrawFooter()
 {
 	// Background
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
-		vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3 - g_Config.menu.sizeText / 2),
+		vec2(g_Config.menu.sizeWidth, g_Config.menu.sizeText),
 		CRender::Centered,
 		CRender::Centered,
-		Color(g_Config->menu.colorBackground.r, g_Config->menu.colorBackground.g, g_Config->menu.colorBackground.b, m_OpacityBackground));
+		Color(g_Config.menu.colorBackground.r, g_Config.menu.colorBackground.g, g_Config.menu.colorBackground.b, m_OpacityBackground));
 
 	// Top
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3),
-		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3),
+		vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 		CRender::Centered,
 		CRender::Bottom,
-		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 
 	// Bottom
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText),
-		vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+		vec2(g_Config.menu.position.x, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3 - g_Config.menu.sizeText),
+		vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 		CRender::Centered,
 		CRender::Top,
-		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 	
-	if (g_Config->menu.useDualColor)
+	if (g_Config.menu.useDualColor)
 	{
 		// Top
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3),
-			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			vec2(g_Config.menu.position.x, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3),
+			vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 			CRender::Centered,
 			CRender::Bottom,
-			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityGlobal),
 			"tex_optionmenu_game");
 
 		// Bottom
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText),
-			vec2(g_Config->menu.sizeWidth + g_Config->menu.sizeBorder * 2, g_Config->menu.sizeBorder),
+			vec2(g_Config.menu.position.x, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3 - g_Config.menu.sizeText),
+			vec2(g_Config.menu.sizeWidth + g_Config.menu.sizeBorder * 2, g_Config.menu.sizeBorder),
 			CRender::Centered,
 			CRender::Top,
-			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal),
+			Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityGlobal),
 			"tex_optionmenu_game");
 	}
 
 	// Left
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
-		vec2(g_Config->menu.sizeBorder, g_Config->menu.sizeText),
+		vec2(g_Config.menu.position.x - g_Config.menu.sizeWidth / 2, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3 - g_Config.menu.sizeText / 2),
+		vec2(g_Config.menu.sizeBorder, g_Config.menu.sizeText),
 		CRender::Right,
 		CRender::Centered,
-		g_Config->menu.useDualColor ? Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityGlobal)
-		: Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		g_Config.menu.useDualColor ? Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityGlobal)
+		: Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 
 	// Right
 	g_Render.Rectangle(
-		vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
-		vec2(g_Config->menu.sizeBorder, g_Config->menu.sizeText),
+		vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3 - g_Config.menu.sizeText / 2),
+		vec2(g_Config.menu.sizeBorder, g_Config.menu.sizeText),
 		CRender::Left,
 		CRender::Centered,
-		Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityGlobal));
+		Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityGlobal));
 
 	// Current option counter
 	g_Render.Text(
 		stdc::va("[%i/%i]", m_CurrentOption, m_TotalOptions),
-		vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 4, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
-		g_Config->menu.sizeText,
+		vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 4, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3 - g_Config.menu.sizeText / 2),
+		g_Config.menu.sizeText,
 		CRender::Right,
 		CRender::Centered,
-		Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+		Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 }
 
 void Menu::DrawHighlightBar()
 {
-	vec2 pos = vec2(g_Config->menu.position.x, g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - m_HighlightBarPosY - g_Config->menu.sizeText / 2);
+	vec2 pos = vec2(g_Config.menu.position.x, g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - m_HighlightBarPosY - g_Config.menu.sizeText / 2);
 
-	if (g_Config->menu.useDualColor)
+	if (g_Config.menu.useDualColor)
 	{
 		g_Render.RectangleGradient(
 			pos,
-			vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+			vec2(g_Config.menu.sizeWidth, g_Config.menu.sizeText),
 			CRender::Centered,
 			CRender::Centered,
-			Color(g_Config->menu.colorLeft.r, g_Config->menu.colorLeft.g, g_Config->menu.colorLeft.b, m_OpacityHighlightBar),
-			Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityHighlightBar));
+			Color(g_Config.menu.colorLeft.r, g_Config.menu.colorLeft.g, g_Config.menu.colorLeft.b, m_OpacityHighlightBar),
+			Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityHighlightBar));
 	}
 	else
 	{
 		g_Render.Rectangle(
 			pos,
-			vec2(g_Config->menu.sizeWidth, g_Config->menu.sizeText),
+			vec2(g_Config.menu.sizeWidth, g_Config.menu.sizeText),
 			CRender::Centered,
 			CRender::Centered,
-			Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityHighlightBar));
+			Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityHighlightBar));
 	}
 }
 
 void Menu::DrawControlsHelp()
 {
-	if (!g_Config->menu.showControlsHelp)
+	if (!g_Config.menu.showControlsHelp)
 		return;
 
-	vec2 pos = vec2(-VIEWPORT_WIDTH / 2 + g_Config->menu.safeArea.x + 5, -VIEWPORT_HEIGHT / 2 + g_Config->menu.safeArea.y + 5);
+	vec2 pos = vec2(-VIEWPORT_WIDTH / 2 + g_Config.menu.safeArea.x + 5, -VIEWPORT_HEIGHT / 2 + g_Config.menu.safeArea.y + 5);
 	
 	std::wstring controlsHelpString = m_StateOpened ? L"Press \uF888 & \uF88A to close the menu | \uF884/\uF885 to scroll | \uF881 to select | \uF880 to go back"
 		: L"Press \uF888 & \uF88A to open Akari menu";
@@ -648,10 +648,10 @@ void Menu::DrawControlsHelp()
 	g_Render.Text(
 		controlsHelpString,
 		pos,
-		g_Config->menu.sizeText,
+		g_Config.menu.sizeText,
 		CRender::Left,
 		CRender::Bottom,
-		g_Config->menu.colorText);
+		g_Config.menu.colorText);
 }
 
 void Menu::DrawMovingHelp()
@@ -662,29 +662,29 @@ void Menu::DrawMovingHelp()
 	g_Render.Text(
 		L"Use \uF88D to move the menu",
 		vec2(),
-		g_Config->menu.sizeText,
+		g_Config.menu.sizeText,
 		CRender::Centered,
 		CRender::Centered,
-		g_Config->menu.colorText);
+		g_Config.menu.colorText);
 
 	g_Render.Text(
-		stdc::va("X: %.2f\nY: %.2f", g_Config->menu.position.x, g_Config->menu.position.y),
-		vec2(0, -g_Config->menu.sizeText * 2),
-		g_Config->menu.sizeText,
+		stdc::va("X: %.2f\nY: %.2f", g_Config.menu.position.x, g_Config.menu.position.y),
+		vec2(0, -g_Config.menu.sizeText * 2),
+		g_Config.menu.sizeText,
 		CRender::Centered,
 		CRender::Centered,
-		g_Config->menu.colorText);
+		g_Config.menu.colorText);
 }
 
 void Menu::DrawMenuTitle(const std::string& text)
 {
 	g_Render.Text(
 		text,
-		vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2 + m_SizeBackgroundSpace / 4, g_Config->menu.position.y - m_SizeBackground / 2 - g_Config->menu.sizeBorder * 3 - g_Config->menu.sizeText / 2),
-		g_Config->menu.sizeText,
+		vec2(g_Config.menu.position.x - g_Config.menu.sizeWidth / 2 + m_SizeBackgroundSpace / 4, g_Config.menu.position.y - m_SizeBackground / 2 - g_Config.menu.sizeBorder * 3 - g_Config.menu.sizeText / 2),
+		g_Config.menu.sizeText,
 		CRender::Left,
 		CRender::Centered,
-		Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+		Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 }
 
 void Menu::DrawMenuOption(const std::string& text)
@@ -693,12 +693,12 @@ void Menu::DrawMenuOption(const std::string& text)
 	{
 		g_Render.Text(
 			text,
-			vec2(g_Config->menu.position.x - g_Config->menu.sizeWidth / 2 + m_SizeBackgroundSpace / 2, 
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
-			g_Config->menu.sizeText,
+			vec2(g_Config.menu.position.x - g_Config.menu.sizeWidth / 2 + m_SizeBackgroundSpace / 2, 
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
+			g_Config.menu.sizeText,
 			CRender::Left,
 			CRender::Centered,
-			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+			Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 	}
 }
 
@@ -708,12 +708,12 @@ void Menu::DrawMenuSubmenu()
 	{
 		g_Render.Text(
 			">",
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
-			g_Config->menu.sizeText,
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
+			g_Config.menu.sizeText,
 			CRender::Right,
 			CRender::Centered,
-			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+			Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 	}
 }
 
@@ -722,12 +722,12 @@ void Menu::DrawMenuToggle(bool var)
 	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
 	{
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
-			vec2(g_Config->menu.sizeText * 0.7, g_Config->menu.sizeText * 0.7),
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
+			vec2(g_Config.menu.sizeText * 0.7, g_Config.menu.sizeText * 0.7),
 			CRender::Right,
 			CRender::Centered,
-			var ? Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityText)
+			var ? Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityText)
 			: Color(0.15, 0.15, 0.15, m_OpacityText));
 	}
 }
@@ -736,12 +736,12 @@ void Menu::DrawMenuSlider(const std::string& text, float progress)
 {
 	if ((m_PrintingOption >= m_CurrentIndex) && (m_PrintingOption < (m_CurrentIndex + maxOptionsPerPage)))
 	{
-		float sliderWidth = g_Config->menu.sizeWidth / 4;
+		float sliderWidth = g_Config.menu.sizeWidth / 4;
 
 		// Bar
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth,
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth,
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
 			vec2(sliderWidth, 2),
 			CRender::Left,
 			CRender::Centered,
@@ -749,31 +749,31 @@ void Menu::DrawMenuSlider(const std::string& text, float progress)
 
 		// Filled bar
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth,
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth,
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
 			vec2((sliderWidth * progress), 2),
 			CRender::Left,
 			CRender::Centered,
-			Color(g_Config->menu.colorRight.r, g_Config->menu.colorRight.g, g_Config->menu.colorRight.b, m_OpacityText));
+			Color(g_Config.menu.colorRight.r, g_Config.menu.colorRight.g, g_Config.menu.colorRight.b, m_OpacityText));
 
 		// Cursor
 		g_Render.Rectangle(
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth + (sliderWidth * progress),
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth + (sliderWidth * progress),
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
 			vec2(2, 8),
 			CRender::Centered,
 			CRender::Centered,
-			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+			Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 
 		// Value
 		g_Render.Text(
 			text,
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth - 5,
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
-			g_Config->menu.sizeText,
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2 - sliderWidth - 5,
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
+			g_Config.menu.sizeText,
 			CRender::Right,
 			CRender::Centered,
-			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+			Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 	}
 }
 
@@ -783,12 +783,12 @@ void Menu::DrawMenuStringOption(std::string item)
 	{
 		g_Render.Text(
 			item,
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
-			g_Config->menu.sizeText,
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
+			g_Config.menu.sizeText,
 			CRender::Right,
 			CRender::Centered,
-			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+			Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 	}
 }
 
@@ -798,12 +798,12 @@ void Menu::DrawMenuStringOption(std::wstring item)
 	{
 		g_Render.Text(
 			item,
-			vec2(g_Config->menu.position.x + g_Config->menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
-			g_Config->menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config->menu.sizeText - g_Config->menu.sizeText / 2),
-			g_Config->menu.sizeText,
+			vec2(g_Config.menu.position.x + g_Config.menu.sizeWidth / 2 - m_SizeBackgroundSpace / 2,
+			g_Config.menu.position.y + m_SizeBackground / 2 - m_SizeBackgroundSpace - (m_PrintingOption - m_CurrentIndex) * g_Config.menu.sizeText - g_Config.menu.sizeText / 2),
+			g_Config.menu.sizeText,
 			CRender::Right,
 			CRender::Centered,
-			Color(g_Config->menu.colorText.r, g_Config->menu.colorText.g, g_Config->menu.colorText.b, m_OpacityText));
+			Color(g_Config.menu.colorText.r, g_Config.menu.colorText.g, g_Config.menu.colorText.b, m_OpacityText));
 	}
 }
 
@@ -812,29 +812,29 @@ void Menu::Title(const std::string& text)
 	DrawMenuTitle(text);
 }
 
-Menu* Menu::Option(const std::string& text)
+Menu& Menu::Option(const std::string& text)
 {
 	m_PrintingOption++;
 	DrawMenuOption(text);
-	return this;
+	return *this;
 }
-Menu* Menu::Submenu(Function sub)
+Menu& Menu::Submenu(Function sub)
 {
 	DrawMenuSubmenu();
 	if (IsPressed())
 		ChangeSubmenu(sub);
-	return this;
+	return *this;
 }
 
-Menu* Menu::Toggle(bool& var)
+Menu& Menu::Toggle(bool& var)
 {
 	DrawMenuToggle(var);
 	if (IsPressed())
 		var ^= 1;
-	return this;
+	return *this;
 }
 
-Menu* Menu::Toggle(bool& var, Function onEnable, Function onDisable)
+Menu& Menu::Toggle(bool& var, Function onEnable, Function onDisable)
 {
 	DrawMenuToggle(var);
 	if (IsPressed())
@@ -851,26 +851,26 @@ Menu* Menu::Toggle(bool& var, Function onEnable, Function onDisable)
 				onDisable();
 		}
 	}
-	return this;
+	return *this;
 }
 
-Menu* Menu::Action(Function fn)
+Menu& Menu::Action(Function fn)
 {
 	if (fn != nullptr)
 		if (IsPressed())
 			fn();
-	return this;
+	return *this;
 }
 
-Menu* Menu::Hover(Function fn)
+Menu& Menu::Hover(Function fn)
 {
 	if (fn != nullptr)
 		if (IsHovered())
 			fn();
-	return this;
+	return *this;
 }
 
-Menu* Menu::Slider(float& var, float min, float max, float step, unsigned int delay, const std::string& text)
+Menu& Menu::Slider(float& var, float min, float max, float step, unsigned int delay, const std::string& text)
 {
 	processOptionItemControls<float>(var, min, max, step);
 	DrawMenuSlider(stdc::va(text.c_str(), var), (var - min) / (max - min));
@@ -878,10 +878,10 @@ Menu* Menu::Slider(float& var, float min, float max, float step, unsigned int de
 	if (IsHovered())
 		m_SliderDelay = delay;
 
-	return this;
+	return *this;
 }
 
-Menu* Menu::Slider(int& var, int min, int max, int step, unsigned int delay, const std::string& text)
+Menu& Menu::Slider(int& var, int min, int max, int step, unsigned int delay, const std::string& text)
 {
 	processOptionItemControls<int>(var, min, max, step);
 	DrawMenuSlider(stdc::va(text.c_str(), var), static_cast<float>(var - min) / static_cast<float>(max - min));
@@ -889,10 +889,10 @@ Menu* Menu::Slider(int& var, int min, int max, int step, unsigned int delay, con
 	if (IsHovered())
 		m_SliderDelay = delay;
 
-	return this;
+	return *this;
 }
 
-Menu* Menu::Strings(const char** items, int& index, int count)
+Menu& Menu::Strings(const char** items, int& index, int count)
 {
 	processOptionItemControls<int>(index, 0, count - 1, 1);
 
@@ -910,10 +910,10 @@ Menu* Menu::Strings(const char** items, int& index, int count)
 	else
 		DrawMenuStringOption(items[index]);
 
-	return this;
+	return *this;
 }
 
-Menu* Menu::Strings(const wchar_t** items, int& index, int count)
+Menu& Menu::Strings(const wchar_t** items, int& index, int count)
 {
 	processOptionItemControls<int>(index, 0, count - 1, 1);
 
@@ -930,5 +930,5 @@ Menu* Menu::Strings(const wchar_t** items, int& index, int count)
 	else
 		DrawMenuStringOption(items[index]);
 
-	return this;
+	return *this;
 }
