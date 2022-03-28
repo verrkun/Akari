@@ -9,7 +9,7 @@ A fully customizable VSH menu with multiple functionalities.
 
 ## Preview
 ![2022-03-27_14-42-10](https://user-images.githubusercontent.com/85250588/160284617-befda427-14ca-463e-9e0f-4ab0ba59707f.png)
-![2022-03-27_14-42-33](https://user-images.githubusercontent.com/85250588/160284706-c9435399-740a-4ab8-b6d8-cd2fc41ed2a0.png)
+![2022-03-28_19-49-30](https://user-images.githubusercontent.com/85250588/160466345-e4620c97-8dec-43ce-8689-09f05189fa98.png)
 ![2022-03-27_14-42-46](https://user-images.githubusercontent.com/85250588/160284724-191861c3-29e9-4a31-ba99-6e157dc83240.png)
 
 ## Building Requirements
