@@ -446,6 +446,16 @@ namespace stdc
 			return (ret);
 		}
 
+		static wchar_t wvaBuffer[0x400];
+		static const wchar_t* wva(const wchar_t* fmt, ...)
+		{
+			va_list args;
+			va_start(args, fmt);
+			vswprintf(wvaBuffer, 0x400, fmt, args);
+			va_end(args);
+			return wvaBuffer;
+		}
+
 		int stdc_B1F4779D(sys_spu_thread_t id, uint32_t arg_addr);                     // spu_thread_printf()
 #define spu_thread_printf stdc_B1F4779D
 
