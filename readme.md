@@ -4,7 +4,7 @@ A fully customizable VSH menu with multiple functionalities.
 
 ## Notes
 - Supports only 720p/1080p
-- Only tested on 4.84 DEX with Cobra 8.3 and on 4.82 CEX with HEN 3.0.3 Debug
+- Only tested on 4.84 DEX with Cobra 8.3 and on 4.82 & 4.88 CEX with HEN 3.0.3 Debug
 - Should work on all 4.75+ firmwares (CEX/DEX/DECR) as long as it is loaded via Cobra, Mamba or HEN
 
 ## Preview
